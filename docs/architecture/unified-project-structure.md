@@ -1,0 +1,41 @@
+# Unified Project Structure
+
+```plaintext
+upsail2/
+  .github/
+    workflows/
+      ci.yaml
+      deploy.yaml
+  apps/
+    web/
+      src/
+        app/
+        components/
+        features/
+        services/
+        hooks/
+        styles/
+      public/
+      tests/
+      package.json
+    api/
+      src/
+        modules/
+        common/
+      tests/
+      package.json
+  packages/
+    shared/
+      src/
+        types/
+        constants/
+        utils/
+      package.json
+  scripts/
+  docs/
+    prd.md
+    architecture.md
+  .env.example
+  package.json
+  package-lock.json
+```

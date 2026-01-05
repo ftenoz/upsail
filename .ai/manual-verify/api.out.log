@@ -1,0 +1,10 @@
+
+> @upsail/api@0.1.0 start
+> node dist/main.js
+
+[32m[Nest] 21952  - [39m04.01.2026 21:05:22 [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
+[32m[Nest] 21952  - [39m04.01.2026 21:05:22 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +29ms[39m
+[32m[Nest] 21952  - [39m04.01.2026 21:05:22 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mHealthModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 21952  - [39m04.01.2026 21:05:23 [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mHealthController {/health}:[39m[38;5;3m +955ms[39m
+[32m[Nest] 21952  - [39m04.01.2026 21:05:23 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/health, GET} route[39m[38;5;3m +6ms[39m
+[32m[Nest] 21952  - [39m04.01.2026 21:05:23 [32m    LOG[39m [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +2ms[39m
