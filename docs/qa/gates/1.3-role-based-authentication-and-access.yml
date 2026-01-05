@@ -1,0 +1,51 @@
+schema: 1
+story: "1.3"
+story_title: "Role-based authentication and access"
+gate: CONCERNS
+status_reason: "Auth works end-to-end, but user storage is in-memory and role enforcement is only demonstrated on a test endpoint."
+reviewer: "Quinn (Test Architect)"
+updated: "2026-01-05T23:58:46.5915900+03:00"
+
+top_issues:
+  - id: "AUTH-PERSIST"
+    severity: "medium"
+    description: "Auth users are stored in-memory; no persistence across restarts."
+    suggested_owner: "dev"
+  - id: "ROLE-ENFORCE"
+    severity: "medium"
+    description: "Role guards are only applied to a test endpoint; no real protected endpoints yet."
+    suggested_owner: "dev"
+
+waiver: { active: false }
+
+quality_score: 80
+expires: "2026-01-19T23:58:46.5955793+03:00"
+
+evidence:
+  tests_reviewed: 2
+  risks_identified: 2
+  trace:
+    ac_covered: ["1.3.1", "1.3.2", "1.3.3"]
+    ac_gaps: []
+
+nfr_validation:
+  security:
+    status: CONCERNS
+    notes: "In-memory rate limiting and user storage are not production-ready."
+  performance:
+    status: PASS
+    notes: "Auth logic is lightweight."
+  reliability:
+    status: CONCERNS
+    notes: "In-memory user storage loses data on restart."
+  maintainability:
+    status: PASS
+    notes: "Modular auth setup and tests are clear."
+
+recommendations:
+  immediate:
+    - action: "Persist users with a real data layer before production"
+      refs: ["apps/api/src/modules/auth/auth.service.ts"]
+    - action: "Apply role guards to actual protected endpoints"
+      refs: ["apps/api/src/common/guards/roles.guard.ts"]
+  future: []
