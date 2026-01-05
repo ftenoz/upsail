@@ -14,6 +14,8 @@
     "start:web": "npm --workspace apps/web run start",
     "build:api": "npm --workspace apps/api run build",
     "start:api": "npm --workspace apps/api run start",
-    "test": "npm --workspace apps/web run test && npm --workspace apps/api run test"
+    "test": "npm --workspace apps/web run test && npm --workspace apps/api run test",
+    "validate:structure": "node scripts/validate-structure.js",
+    "smoke:deploy": "node scripts/deployment-smoke-check.js"
   }
 }

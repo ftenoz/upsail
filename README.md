@@ -13,3 +13,4 @@ Baseline monorepo for the Upsail web and API applications.
 - Web: `apps/web`
 - API: `apps/api`
 - Shared: `packages/shared`
+

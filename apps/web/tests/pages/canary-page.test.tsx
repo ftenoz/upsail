@@ -1,10 +1,22 @@
 import { render, screen } from "@testing-library/react";
-import CanaryPage from "../../src/app/(public)/page";
+import LandingPage from "../../src/app/(public)/page";
 
-describe("Canary page", () => {
-  it("renders the canary headline", () => {
-    render(<CanaryPage />);
+describe("Landing page", () => {
+  it("renders purpose, disclaimers, and sign-up CTAs", () => {
+    render(<LandingPage />);
 
-    expect(screen.getByText("Canary page is live")).toBeInTheDocument();
+    expect(
+      screen.getByText("Trusted maritime experts, matched with companies")
+    ).toBeInTheDocument();
+    expect(screen.getByText(/no payments/i)).toBeInTheDocument();
+    expect(screen.getByText(/no guarantees/i)).toBeInTheDocument();
+
+    const companyCta = screen.getByRole("link", { name: "Company sign-up" });
+    const freelancerCta = screen.getByRole("link", {
+      name: "Freelancer sign-up"
+    });
+
+    expect(companyCta).toHaveAttribute("href", "/auth/register");
+    expect(freelancerCta).toHaveAttribute("href", "/auth/register");
   });
 });
