@@ -16,7 +16,7 @@ describe("Landing page", () => {
       name: "Freelancer sign-up"
     });
 
-    expect(companyCta).toHaveAttribute("href", "/auth/register");
-    expect(freelancerCta).toHaveAttribute("href", "/auth/register");
+    expect(companyCta).toHaveAttribute("href", "/register");
+    expect(freelancerCta).toHaveAttribute("href", "/register");
   });
 });

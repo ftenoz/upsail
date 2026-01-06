@@ -22,13 +22,13 @@ export default function LandingPage() {
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
           <Link
             className="inline-flex items-center justify-center rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white"
-            href="/auth/register"
+            href="/register"
           >
             Company sign-up
           </Link>
           <Link
             className="inline-flex items-center justify-center rounded-full border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-900"
-            href="/auth/register"
+            href="/register"
           >
             Freelancer sign-up
           </Link>
