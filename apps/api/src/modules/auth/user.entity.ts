@@ -19,7 +19,11 @@ export class User {
   @Column({ type: "varchar" })
   passwordHash!: string;
 
-  @Column({ type: "enum", enum: ["company", "freelancer"] })
+  @Column({
+    type: "enum",
+    enum: ["company", "freelancer"],
+    enumName: "users_role_enum"
+  })
   role!: UserRole;
 
   @Column({ type: "varchar", nullable: true })
@@ -28,6 +32,11 @@ export class User {
   @Column({ type: "varchar", nullable: true })
   companyName!: string | null;
 
-  @Column({ type: "enum", enum: UserStatus, default: UserStatus.Pending })
+  @Column({
+    type: "enum",
+    enum: UserStatus,
+    enumName: "users_status_enum",
+    default: UserStatus.Pending
+  })
   status!: UserStatus;
 }

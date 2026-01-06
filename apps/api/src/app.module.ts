@@ -15,7 +15,7 @@ const isProduction = process.env.NODE_ENV === "production";
       type: "postgres",
       url: getDatabaseUrl(),
       autoLoadEntities: true,
-      synchronize: true,
+      synchronize: !isProduction,
       ssl: isProduction ? { rejectUnauthorized: false } : false
     }),
     HealthModule,

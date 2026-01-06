@@ -7,7 +7,9 @@ import { HttpExceptionFilter } from "../../src/common/filters/http-exception.fil
 import { User } from "../../src/modules/auth/user.entity";
 import type { Repository } from "typeorm";
 
-describe("Auth flow", () => {
+const describeWithDb = process.env.DATABASE_URL ? describe : describe.skip;
+
+describeWithDb("Auth flow", () => {
   let app: INestApplication;
   let users: Repository<User>;
   type AuthResponse = { token: string; role: "company" | "freelancer" };

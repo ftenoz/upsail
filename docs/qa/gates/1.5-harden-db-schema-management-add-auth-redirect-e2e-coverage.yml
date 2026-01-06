@@ -1,0 +1,72 @@
+schema: 1
+story: "1.5"
+story_title: "Harden DB schema management + add auth redirect e2e coverage"
+gate: WAIVED
+status_reason: "Concerns acknowledged and deferred; functionality accepted with planned follow-up."
+reviewer: "Quinn (Test Architect)"
+updated: "2026-01-06T22:05:00Z"
+
+top_issues:
+  - id: "ci-db-coverage-gap"
+    severity: medium
+    finding: "API integration tests are skipped when DATABASE_URL is missing, reducing CI coverage."
+    suggested_owner: po
+    refs:
+      - "apps/api/tests/integration/auth.e2e-spec.ts"
+      - "apps/api/tests/integration/health.e2e-spec.ts"
+  - id: "e2e-not-in-ci"
+    severity: medium
+    finding: "Playwright e2e tests are not wired into CI."
+    suggested_owner: po
+    refs:
+      - "apps/e2e/playwright.config.ts"
+      - "apps/e2e/tests/auth-redirects.spec.ts"
+  - id: "manual-migration-baseline"
+    severity: medium
+    finding: "Existing environments require manual migration baseline insertion; procedure not automated."
+    suggested_owner: dev
+    refs:
+      - "apps/api/src/migrations/20260106194500-create-users.ts"
+
+waiver:
+  active: true
+  approver: "User"
+  reason: "They will be handled later."
+  date: "2026-01-06"
+
+quality_score: 70
+expires: "2026-01-20T22:05:00Z"
+
+evidence:
+  tests_reviewed: 3
+  risks_identified: 3
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6, 7, 8]
+    ac_gaps: []
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: "No new auth surface; SSL configuration maintained."
+  performance:
+    status: PASS
+    notes: "No new runtime hotspots identified."
+  reliability:
+    status: CONCERNS
+    notes: "Manual migration baseline and skipped CI DB tests reduce reliability confidence."
+  maintainability:
+    status: CONCERNS
+    notes: "E2E not integrated into CI; test structure not aligned to documented feature folders."
+
+recommendations:
+  immediate:
+    - action: "Provide DATABASE_URL in CI or add a test DB setup for integration tests."
+      refs:
+        - "apps/api/tests/integration/auth.e2e-spec.ts"
+    - action: "Add Playwright e2e job to CI or document a required manual run."
+      refs:
+        - "apps/e2e/tests/auth-redirects.spec.ts"
+  future:
+    - action: "Automate migration baseline for existing environments."
+      refs:
+        - "apps/api/src/migrations/20260106194500-create-users.ts"

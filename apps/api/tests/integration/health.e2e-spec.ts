@@ -4,7 +4,9 @@ import request from "supertest";
 import { AppModule } from "../../src/app.module";
 import { HttpExceptionFilter } from "../../src/common/filters/http-exception.filter";
 
-describe("GET /health", () => {
+const describeWithDb = process.env.DATABASE_URL ? describe : describe.skip;
+
+describeWithDb("GET /health", () => {
   let app: INestApplication;
 
   beforeAll(async () => {

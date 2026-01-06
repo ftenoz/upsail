@@ -14,6 +14,13 @@ Baseline monorepo for the Upsail web and API applications.
 - API: `apps/api`
 - Shared: `packages/shared`
 
+## Migrations
+- Ensure `DATABASE_URL` is set for the API environment.
+- Run migrations: `npm --workspace apps/api run migration:run`
+- Show migration status: `npm --workspace apps/api run migration:show`
+- Revert last migration: `npm --workspace apps/api run migration:revert`
+- Generate a migration: `npm --workspace apps/api run typeorm -- migration:generate src/migrations/YourMigrationName`
+
 ## Deployment notes
 - Configure `CORS_ORIGIN` for the API to allow the web app origin (comma-separated list). Example: `http://localhost:3000,https://upsail-web-591ee107d7d1.herokuapp.com`.
 - Heroku config examples:
