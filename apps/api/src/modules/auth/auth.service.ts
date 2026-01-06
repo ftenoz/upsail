@@ -3,18 +3,13 @@ import {
   Injectable,
   UnauthorizedException
 } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { randomUUID } from "crypto";
+import type { Repository } from "typeorm";
 import type { RegisterDto } from "./dto/register.dto";
 import type { LoginDto } from "./dto/login.dto";
-
-type UserRecord = {
-  id: string;
-  email: string;
-  passwordHash: string;
-  role: "company" | "freelancer";
-};
+import { User } from "./user.entity";
 
 type AuthResponse = {
   token: string;
@@ -25,30 +20,38 @@ const getJwtSecret = () => process.env.JWT_SECRET ?? "dev-secret";
 
 @Injectable()
 export class AuthService {
-  private readonly usersByEmail = new Map<string, UserRecord>();
+  constructor(
+    @InjectRepository(User) private readonly users: Repository<User>
+  ) {}
 
   async register(dto: RegisterDto): Promise<AuthResponse> {
-    if (this.usersByEmail.has(dto.email)) {
+    const existingUser = await this.users.findOne({
+      where: { email: dto.email }
+    });
+    if (existingUser) {
       throw new BadRequestException("Email already registered.");
     }
 
     const passwordHash = await bcrypt.hash(dto.password, 10);
-    const user: UserRecord = {
-      id: randomUUID(),
+    const user = this.users.create({
       email: dto.email,
       passwordHash,
-      role: dto.role
-    };
-    this.usersByEmail.set(dto.email, user);
+      role: dto.role,
+      name: null,
+      companyName: null
+    });
+    const savedUser = await this.users.save(user);
 
     return {
-      token: this.signToken(user),
-      role: user.role
+      token: this.signToken(savedUser),
+      role: savedUser.role
     };
   }
 
   async login(dto: LoginDto): Promise<AuthResponse> {
-    const user = this.usersByEmail.get(dto.email);
+    const user = await this.users.findOne({
+      where: { email: dto.email }
+    });
     if (!user) {
       throw new UnauthorizedException("Invalid credentials.");
     }
@@ -68,7 +71,7 @@ export class AuthService {
     };
   }
 
-  private signToken(user: UserRecord) {
+  private signToken(user: User) {
     return jwt.sign(
       {
         sub: user.id,

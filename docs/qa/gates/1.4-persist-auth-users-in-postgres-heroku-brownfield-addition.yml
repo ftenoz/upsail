@@ -1,0 +1,58 @@
+schema: 1
+story: "1.4"
+story_title: "Persist auth users in Postgres (Heroku) - Brownfield Addition"
+gate: CONCERNS
+status_reason: "Core functionality is implemented and tests pass, but production schema sync and missing e2e coverage for role-based redirects introduce risk."
+reviewer: "Quinn (Test Architect)"
+updated: "2026-01-06T19:50:00Z"
+
+top_issues:
+  - id: "prod-schema-sync"
+    severity: medium
+    finding: "TypeORM synchronize is enabled in production, risking unintended schema changes."
+    suggested_owner: dev
+    refs:
+      - "apps/api/src/app.module.ts"
+  - id: "missing-e2e-redirects"
+    severity: medium
+    finding: "Role-based redirect/auth flows (AC8) lack explicit e2e coverage."
+    suggested_owner: dev
+    refs:
+      - "apps/web"
+
+waiver:
+  active: false
+
+quality_score: 80
+expires: "2026-01-20T19:50:00Z"
+
+evidence:
+  tests_reviewed: 2
+  risks_identified: 2
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6, 7, 9]
+    ac_gaps: [8]
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: "JWT + bcrypt usage unchanged; auth endpoints rely on existing validation."
+  performance:
+    status: PASS
+    notes: "No new heavy queries; repository lookups are standard."
+  reliability:
+    status: CONCERNS
+    notes: "Production schema sync can cause unexpected migrations."
+  maintainability:
+    status: CONCERNS
+    notes: "Migrations not established; test serialization hides schema race risk."
+
+recommendations:
+  immediate:
+    - action: "Disable TypeORM synchronize in production; introduce migrations."
+      refs:
+        - "apps/api/src/app.module.ts"
+  future:
+    - action: "Add e2e coverage for role-based redirect/auth flows."
+      refs:
+        - "apps/web"

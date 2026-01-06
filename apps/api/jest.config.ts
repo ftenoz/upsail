@@ -7,7 +7,8 @@ const config: Config = {
   transform: {
     "^.+\\.(t|j)s$": ["ts-jest", { tsconfig: "tsconfig.json" }]
   },
-  testEnvironment: "node"
+  testEnvironment: "node",
+  maxWorkers: 1
 };
 
 export default config;

@@ -1,11 +1,15 @@
 import { Test } from "@nestjs/testing";
 import { ValidationPipe, type INestApplication } from "@nestjs/common";
+import { getRepositoryToken } from "@nestjs/typeorm";
 import request from "supertest";
 import { AppModule } from "../../src/app.module";
 import { HttpExceptionFilter } from "../../src/common/filters/http-exception.filter";
+import { User } from "../../src/modules/auth/user.entity";
+import type { Repository } from "typeorm";
 
 describe("Auth flow", () => {
   let app: INestApplication;
+  let users: Repository<User>;
   type AuthResponse = { token: string; role: "company" | "freelancer" };
 
   beforeAll(async () => {
@@ -24,10 +28,15 @@ describe("Auth flow", () => {
     );
     app.useGlobalFilters(new HttpExceptionFilter());
     await app.init();
+    users = moduleRef.get<Repository<User>>(getRepositoryToken(User));
   });
 
   afterAll(async () => {
     await app.close();
+  });
+
+  beforeEach(async () => {
+    await users.clear();
   });
 
   it("registers and logs in a company user", async () => {
