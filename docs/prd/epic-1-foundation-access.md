@@ -32,3 +32,14 @@ Acceptance Criteria
 1.3.1: Users can register and log in with role selection (Company or Freelancer).
 1.3.2: Auth system enforces role-based access restrictions.
 1.3.3: Authenticated users are directed to a role-appropriate starting screen.
+
+Story 1.4: Persist auth users in Postgres (Heroku)
+As a platform owner,
+I want registered users stored in Postgres instead of memory,
+so that authentication survives restarts and is production-ready.
+
+Acceptance Criteria
+1.4.1: Register/login use Postgres-backed user records (email, passwordHash, role).
+1.4.2: Unique email constraint prevents duplicate accounts.
+1.4.3: API uses Heroku Postgres via DATABASE_URL with SSL in production.
+1.4.4: Auth behavior and role-based redirects remain unchanged.

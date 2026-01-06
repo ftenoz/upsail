@@ -7,9 +7,13 @@ import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  const defaultCorsOrigins = [
+    "http://localhost:3000",
+    "https://upsail-web-591ee107d7d1.herokuapp.com"
+  ];
   const corsOrigins = process.env.CORS_ORIGIN
     ? process.env.CORS_ORIGIN.split(",").map((origin) => origin.trim()).filter(Boolean)
-    : ["http://localhost:3000"];
+    : defaultCorsOrigins;
   app.enableCors({
     origin: corsOrigins,
     credentials: true

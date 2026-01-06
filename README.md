@@ -14,3 +14,6 @@ Baseline monorepo for the Upsail web and API applications.
 - API: `apps/api`
 - Shared: `packages/shared`
 
+## Deployment notes
+- Configure `CORS_ORIGIN` for the API to allow the web app origin (comma-separated list). Example: `http://localhost:3000,https://upsail-web-591ee107d7d1.herokuapp.com`.
+
