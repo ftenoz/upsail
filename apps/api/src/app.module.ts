@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { HealthModule } from "./modules/health/health.module";
 import { AuthModule } from "./modules/auth/auth.module";
+import { CompanyModule } from "./modules/company/company.module";
 
 const getDatabaseUrl = () =>
   process.env.DATABASE_URL ??
@@ -19,7 +20,8 @@ const isProduction = process.env.NODE_ENV === "production";
       ssl: isProduction ? { rejectUnauthorized: false } : false
     }),
     HealthModule,
-    AuthModule
+    AuthModule,
+    CompanyModule
   ]
 })
 export class AppModule {}

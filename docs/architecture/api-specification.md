@@ -25,6 +25,9 @@ paths:
       summary: Create company profile
     put:
       summary: Update company profile
+  /company/{companyId}:
+    get:
+      summary: Get public company profile
 
   /freelancer/profile:
     get:

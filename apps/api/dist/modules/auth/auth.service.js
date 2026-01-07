@@ -5,39 +5,52 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
+const typeorm_1 = require("@nestjs/typeorm");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const crypto_1 = require("crypto");
+const user_entity_1 = require("./user.entity");
 const getJwtSecret = () => process.env.JWT_SECRET ?? "dev-secret";
 let AuthService = class AuthService {
-    constructor() {
-        this.usersByEmail = new Map();
+    constructor(users) {
+        this.users = users;
     }
     async register(dto) {
-        if (this.usersByEmail.has(dto.email)) {
+        const existingUser = await this.users.findOne({
+            where: { email: dto.email }
+        });
+        if (existingUser) {
             throw new common_1.BadRequestException("Email already registered.");
         }
         const passwordHash = await bcrypt_1.default.hash(dto.password, 10);
-        const user = {
-            id: (0, crypto_1.randomUUID)(),
+        const user = this.users.create({
             email: dto.email,
             passwordHash,
-            role: dto.role
-        };
-        this.usersByEmail.set(dto.email, user);
+            role: dto.role,
+            name: null,
+            companyName: null
+        });
+        const savedUser = await this.users.save(user);
         return {
-            token: this.signToken(user),
-            role: user.role
+            token: this.signToken(savedUser),
+            role: savedUser.role
         };
     }
     async login(dto) {
-        const user = this.usersByEmail.get(dto.email);
+        const user = await this.users.findOne({
+            where: { email: dto.email }
+        });
         if (!user) {
             throw new common_1.UnauthorizedException("Invalid credentials.");
         }
@@ -63,5 +76,7 @@ let AuthService = class AuthService {
 };
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([
-    (0, common_1.Injectable)()
+    (0, common_1.Injectable)(),
+    __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
+    __metadata("design:paramtypes", [Function])
 ], AuthService);
