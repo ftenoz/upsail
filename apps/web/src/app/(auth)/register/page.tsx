@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { registerUser, type AuthRole } from "../../../services/auth";
 
 const roleRoutes: Record<AuthRole, string> = {
-  company: "/company/dashboard",
+  company: "/company/profile",
   freelancer: "/freelancer/jobs"
 };
 

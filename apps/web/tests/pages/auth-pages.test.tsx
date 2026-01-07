@@ -41,7 +41,7 @@ describe("Auth pages", () => {
     fireEvent.click(screen.getByRole("button", { name: "Create account" }));
 
     await waitFor(() => {
-      expect(pushMock).toHaveBeenCalledWith("/company/dashboard");
+      expect(pushMock).toHaveBeenCalledWith("/company/profile");
     });
   });
 

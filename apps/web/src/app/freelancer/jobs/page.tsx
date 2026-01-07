@@ -3,6 +3,24 @@
 import { useState } from "react";
 import Link from "next/link";
 
+type JobPreview = {
+  id: string;
+  title: string;
+  companyId: string;
+  companyName: string;
+  location: string;
+};
+
+const jobPreviews: JobPreview[] = [
+  {
+    id: "job-001",
+    title: "Offshore maintenance planner",
+    companyId: "company-001",
+    companyName: "Seaworthy Co.",
+    location: "Oslo"
+  }
+];
+
 export default function FreelancerJobsPage() {
   const [companyId, setCompanyId] = useState("");
   const profileHref = companyId ? `/company/${encodeURIComponent(companyId)}` : "";
@@ -43,6 +61,38 @@ export default function FreelancerJobsPage() {
               Enter a company ID to view the profile.
             </p>
           )}
+        </section>
+
+        <section className="space-y-4 rounded-2xl border border-slate-100 bg-white p-4">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+              Job previews
+            </p>
+            <span className="text-xs text-slate-400">Sample data</span>
+          </div>
+          <div className="space-y-3">
+            {jobPreviews.map((job) => (
+              <div
+                key={job.id}
+                className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900">{job.title}</p>
+                    <p className="text-xs text-slate-500">
+                      {job.companyName} · {job.location}
+                    </p>
+                  </div>
+                  <Link
+                    className="text-sm font-semibold text-slate-900 underline"
+                    href={`/company/${encodeURIComponent(job.companyId)}`}
+                  >
+                    Company profile
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
         </section>
       </div>
     </main>
