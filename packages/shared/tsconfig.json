@@ -6,7 +6,9 @@
     "emitDeclarationOnly": false,
     "outDir": "dist",
     "strict": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "types": []
   },
   "include": [
     "src/**/*.ts"
