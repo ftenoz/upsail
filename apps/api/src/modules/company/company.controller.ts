@@ -14,8 +14,8 @@ import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { RolesGuard } from "../../common/guards/roles.guard";
 import { Roles } from "../../common/decorators/roles.decorator";
 import { CompanyService } from "./company.service";
-import type { CreateCompanyProfileDto } from "./dto/create-company-profile.dto";
-import type { UpdateCompanyProfileDto } from "./dto/update-company-profile.dto";
+import { CreateCompanyProfileDto } from "./dto/create-company-profile.dto";
+import { UpdateCompanyProfileDto } from "./dto/update-company-profile.dto";
 
 type AuthRequest = Request & { user?: { sub?: string } };
 
