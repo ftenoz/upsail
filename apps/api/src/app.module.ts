@@ -3,6 +3,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { HealthModule } from "./modules/health/health.module";
 import { AuthModule } from "./modules/auth/auth.module";
 import { CompanyModule } from "./modules/company/company.module";
+import { FreelancerModule } from "./modules/freelancer/freelancer.module";
 
 const getDatabaseUrl = () =>
   process.env.DATABASE_URL ??
@@ -21,7 +22,8 @@ const isProduction = process.env.NODE_ENV === "production";
     }),
     HealthModule,
     AuthModule,
-    CompanyModule
+    CompanyModule,
+    FreelancerModule
   ]
 })
 export class AppModule {}

@@ -64,7 +64,7 @@ describe("Auth pages", () => {
     fireEvent.click(screen.getByRole("button", { name: "Log in" }));
 
     await waitFor(() => {
-      expect(pushMock).toHaveBeenCalledWith("/freelancer/jobs");
+      expect(pushMock).toHaveBeenCalledWith("/freelancer/profile");
     });
   });
 });

@@ -36,6 +36,9 @@ paths:
       summary: Create freelancer profile
     put:
       summary: Update freelancer profile
+  /freelancer/{freelancerId}:
+    get:
+      summary: Get public freelancer profile
 
   /jobs:
     get:

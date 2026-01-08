@@ -6,7 +6,7 @@ import { registerUser, type AuthRole } from "../../../services/auth";
 
 const roleRoutes: Record<AuthRole, string> = {
   company: "/company/profile",
-  freelancer: "/freelancer/jobs"
+  freelancer: "/freelancer/profile"
 };
 
 export default function RegisterPage() {

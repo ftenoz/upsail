@@ -5,15 +5,15 @@ import request from "supertest";
 import { AppModule } from "../../src/app.module";
 import { HttpExceptionFilter } from "../../src/common/filters/http-exception.filter";
 import { User } from "../../src/modules/auth/user.entity";
-import { CompanyProfile } from "../../src/modules/company/company-profile.entity";
+import { FreelancerProfile } from "../../src/modules/freelancer/freelancer-profile.entity";
 import type { Repository } from "typeorm";
 
 const describeWithDb = process.env.DATABASE_URL ? describe : describe.skip;
 
-describeWithDb("Company profile", () => {
+describeWithDb("Freelancer profile", () => {
   let app: INestApplication;
   let users: Repository<User>;
-  let profiles: Repository<CompanyProfile>;
+  let profiles: Repository<FreelancerProfile>;
 
   beforeAll(async () => {
     process.env.JWT_SECRET = "test-secret";
@@ -33,8 +33,8 @@ describeWithDb("Company profile", () => {
     await app.init();
 
     users = moduleRef.get<Repository<User>>(getRepositoryToken(User));
-    profiles = moduleRef.get<Repository<CompanyProfile>>(
-      getRepositoryToken(CompanyProfile)
+    profiles = moduleRef.get<Repository<FreelancerProfile>>(
+      getRepositoryToken(FreelancerProfile)
     );
   });
 
@@ -55,7 +55,7 @@ describeWithDb("Company profile", () => {
       .send({
         email,
         password: "password123",
-        role: "company"
+        role: "freelancer"
       })
       .expect(201);
 
@@ -64,7 +64,7 @@ describeWithDb("Company profile", () => {
       .send({
         email,
         password: "password123",
-        role: "company"
+        role: "freelancer"
       })
       .expect(200);
 
@@ -77,89 +77,93 @@ describeWithDb("Company profile", () => {
     return { token: loginBody.token, userId: user.id, server };
   };
 
-  it("creates, updates, and reads a company profile", async () => {
-    const { token, userId, server } = await registerAndLogin("company@example.com");
+  it("creates, updates, and reads a freelancer profile", async () => {
+    const { token, userId, server } = await registerAndLogin(
+      "freelancer@example.com"
+    );
 
     const createRes = await request(server)
-      .post("/company/profile")
+      .post("/freelancer/profile")
       .set("Authorization", `Bearer ${token}`)
       .send({
-        name: "Dockside Logistics",
-        description: "We support port operations worldwide.",
-        contactEmail: "ops@dockside.com",
-        location: "Rotterdam"
+        skills: ["Navigation", "Maintenance"],
+        certifications: ["STCW"],
+        location: "Rotterdam",
+        availability: "Available in Q2",
+        linkedInUrl: "https://www.linkedin.com/in/freelancer"
       })
       .expect(201);
 
     const createBody = createRes.body as {
       id: string;
       userId: string;
-      name: string;
-      description: string | null;
-      contactEmail: string;
+      skills: string[];
+      certifications: string[];
       location: string | null;
+      availability: string | null;
+      linkedInUrl: string | null;
     };
 
-    expect(createBody.name).toBe("Dockside Logistics");
     expect(createBody.userId).toBe(userId);
+    expect(createBody.skills).toEqual(["Navigation", "Maintenance"]);
 
     const getRes = await request(server)
-      .get("/company/profile")
+      .get("/freelancer/profile")
       .set("Authorization", `Bearer ${token}`)
       .expect(200);
 
     const getBody = getRes.body as { profile: typeof createBody | null };
-    expect(getBody.profile?.contactEmail).toBe("ops@dockside.com");
+    expect(getBody.profile?.location).toBe("Rotterdam");
 
     await request(server)
-      .put("/company/profile")
+      .put("/freelancer/profile")
       .set("Authorization", `Bearer ${token}`)
       .send({
-        name: "Dockside Logistics",
-        description: "Global maritime logistics.",
-        contactEmail: "ops@dockside.com",
-        location: "Singapore"
+        skills: ["Navigation"],
+        certifications: ["STCW", "GMDSS"],
+        location: "Oslo",
+        availability: "Available now",
+        linkedInUrl: "https://www.linkedin.com/in/freelancer"
       })
       .expect(200);
 
     const publicRes = await request(server)
-      .get(`/company/${userId}`)
+      .get(`/freelancer/${userId}`)
       .expect(200);
 
     const publicBody = publicRes.body as typeof createBody;
-    expect(publicBody.location).toBe("Singapore");
+    expect(publicBody.location).toBe("Oslo");
+    expect(publicBody.certifications).toEqual(["STCW", "GMDSS"]);
   });
 
-  it("blocks non-company users from writing profiles", async () => {
+  it("blocks non-freelancer users from writing profiles", async () => {
     const server = app.getHttpServer() as unknown as import("http").Server;
 
     await request(server)
       .post("/auth/register")
       .send({
-        email: "freelancer@example.com",
+        email: "company@example.com",
         password: "password123",
-        role: "freelancer"
+        role: "company"
       })
       .expect(201);
 
     const loginRes = await request(server)
       .post("/auth/login")
       .send({
-        email: "freelancer@example.com",
+        email: "company@example.com",
         password: "password123",
-        role: "freelancer"
+        role: "company"
       })
       .expect(200);
     const loginBody = loginRes.body as { token: string };
 
     await request(server)
-      .post("/company/profile")
+      .post("/freelancer/profile")
       .set("Authorization", `Bearer ${loginBody.token}`)
       .send({
-        name: "Harborline",
-        description: "Freelancer test",
-        contactEmail: "hello@harborline.com",
-        location: "Oslo"
+        skills: ["Inspection"],
+        certifications: ["STCW"]
       })
       .expect(403);
   });
