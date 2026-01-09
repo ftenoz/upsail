@@ -4,6 +4,7 @@ import { HealthModule } from "./modules/health/health.module";
 import { AuthModule } from "./modules/auth/auth.module";
 import { CompanyModule } from "./modules/company/company.module";
 import { FreelancerModule } from "./modules/freelancer/freelancer.module";
+import { JobsModule } from "./modules/jobs/jobs.module";
 
 const getDatabaseUrl = () =>
   process.env.DATABASE_URL ??
@@ -23,7 +24,8 @@ const isProduction = process.env.NODE_ENV === "production";
     HealthModule,
     AuthModule,
     CompanyModule,
-    FreelancerModule
+    FreelancerModule,
+    JobsModule
   ]
 })
 export class AppModule {}
