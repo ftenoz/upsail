@@ -166,4 +166,67 @@ describeWithDb("Jobs", () => {
       })
       .expect(403);
   });
+
+  it("filters jobs by skill, location, and availability", async () => {
+    const { token, server } = await registerAndLogin(
+      "company-filter@example.com",
+      "company"
+    );
+    await createCompanyProfile(token, server);
+
+    const firstJob = await request(server)
+      .post("/jobs")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        title: "Offshore maintenance planner",
+        description: "Plan maintenance for offshore assets.",
+        requirements: ["Planning"],
+        location: "Oslo",
+        duration: "3 months",
+        timing: "Q2 2026"
+      })
+      .expect(201);
+
+    const secondJob = await request(server)
+      .post("/jobs")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        title: "Deck officer",
+        description: "Deck support",
+        requirements: ["STCW"],
+        location: "Hamburg",
+        duration: "1 month",
+        timing: "Q4 2026"
+      })
+      .expect(201);
+
+    const freelancerSession = await registerAndLogin(
+      "freelancer-filter@example.com",
+      "freelancer"
+    );
+
+    const bySkill = await request(freelancerSession.server)
+      .get("/jobs?skill=Planning")
+      .set("Authorization", `Bearer ${freelancerSession.token}`)
+      .expect(200);
+    const bySkillBody = bySkill.body as Job[];
+    expect(bySkillBody).toHaveLength(1);
+    expect(bySkillBody[0]?.id).toBe((firstJob.body as Job).id);
+
+    const byLocation = await request(freelancerSession.server)
+      .get("/jobs?location=Hamburg")
+      .set("Authorization", `Bearer ${freelancerSession.token}`)
+      .expect(200);
+    const byLocationBody = byLocation.body as Job[];
+    expect(byLocationBody).toHaveLength(1);
+    expect(byLocationBody[0]?.id).toBe((secondJob.body as Job).id);
+
+    const byAvailability = await request(freelancerSession.server)
+      .get("/jobs?availability=Q2")
+      .set("Authorization", `Bearer ${freelancerSession.token}`)
+      .expect(200);
+    const byAvailabilityBody = byAvailability.body as Job[];
+    expect(byAvailabilityBody).toHaveLength(1);
+    expect(byAvailabilityBody[0]?.id).toBe((firstJob.body as Job).id);
+  });
 });

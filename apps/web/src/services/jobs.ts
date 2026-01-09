@@ -15,6 +15,9 @@ export type JobUpdatePayload = Partial<JobPayload>;
 export type ListJobsParams = {
   mine?: boolean;
   status?: JobStatus;
+  skill?: string;
+  location?: string;
+  availability?: string;
 };
 
 const buildQuery = (params?: ListJobsParams) => {
@@ -25,6 +28,15 @@ const buildQuery = (params?: ListJobsParams) => {
   }
   if (params.status) {
     search.set("status", params.status);
+  }
+  if (params.skill) {
+    search.set("skill", params.skill);
+  }
+  if (params.location) {
+    search.set("location", params.location);
+  }
+  if (params.availability) {
+    search.set("availability", params.availability);
   }
   const query = search.toString();
   return query ? `?${query}` : "";

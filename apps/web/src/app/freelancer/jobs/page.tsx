@@ -1,16 +1,53 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { listJobs } from "../../../services/jobs";
+import { listJobs, type ListJobsParams } from "../../../services/jobs";
+
+type FilterDraft = {
+  skill: string;
+  location: string;
+  availability: string;
+};
+
+const emptyFilters: FilterDraft = {
+  skill: "",
+  location: "",
+  availability: ""
+};
 
 export default function FreelancerJobsPage() {
+  const [draftFilters, setDraftFilters] = useState<FilterDraft>(emptyFilters);
+  const [filters, setFilters] = useState<ListJobsParams | null>(null);
+
   const { data, isLoading, error } = useQuery({
-    queryKey: ["jobs", "feed"],
-    queryFn: () => listJobs()
+    queryKey: ["jobs", "feed", filters],
+    queryFn: () => listJobs(filters ?? undefined)
   });
 
   const jobs = data ?? [];
+
+  const handleDraftChange = (field: keyof FilterDraft) => {
+    return (event: React.ChangeEvent<HTMLInputElement>) => {
+      setDraftFilters((current) => ({ ...current, [field]: event.target.value }));
+    };
+  };
+
+  const applyFilters = () => {
+    const nextFilters: ListJobsParams = {
+      skill: draftFilters.skill.trim() || undefined,
+      location: draftFilters.location.trim() || undefined,
+      availability: draftFilters.availability.trim() || undefined
+    };
+    const hasFilters = Object.values(nextFilters).some(Boolean);
+    setFilters(hasFilters ? nextFilters : null);
+  };
+
+  const clearFilters = () => {
+    setDraftFilters(emptyFilters);
+    setFilters(null);
+  };
 
   return (
     <main className="min-h-screen bg-slate-50 p-8">
@@ -23,6 +60,69 @@ export default function FreelancerJobsPage() {
             Browse open roles and connect with verified companies.
           </p>
         </div>
+
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end">
+            <div className="flex-1 space-y-2">
+              <label className="block text-sm font-semibold text-slate-700" htmlFor="filter-skill">
+                Role or skill
+              </label>
+              <input
+                id="filter-skill"
+                type="text"
+                className="w-full rounded-xl border border-slate-200 px-4 py-2 text-sm"
+                value={draftFilters.skill}
+                onChange={handleDraftChange("skill")}
+                placeholder="e.g. Offshore ops"
+              />
+            </div>
+            <div className="flex-1 space-y-2">
+              <label className="block text-sm font-semibold text-slate-700" htmlFor="filter-location">
+                Location
+              </label>
+              <input
+                id="filter-location"
+                type="text"
+                className="w-full rounded-xl border border-slate-200 px-4 py-2 text-sm"
+                value={draftFilters.location}
+                onChange={handleDraftChange("location")}
+                placeholder="e.g. Oslo"
+              />
+            </div>
+            <div className="flex-1 space-y-2">
+              <label
+                className="block text-sm font-semibold text-slate-700"
+                htmlFor="filter-availability"
+              >
+                Availability
+              </label>
+              <input
+                id="filter-availability"
+                type="text"
+                className="w-full rounded-xl border border-slate-200 px-4 py-2 text-sm"
+                value={draftFilters.availability}
+                onChange={handleDraftChange("availability")}
+                placeholder="e.g. Q2 2026"
+              />
+            </div>
+          </div>
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+            <button
+              type="button"
+              className="flex-1 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
+              onClick={applyFilters}
+            >
+              Apply filters
+            </button>
+            <button
+              type="button"
+              className="flex-1 rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600"
+              onClick={clearFilters}
+            >
+              Clear filters
+            </button>
+          </div>
+        </section>
 
         {error ? (
           <p className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
@@ -51,7 +151,7 @@ export default function FreelancerJobsPage() {
                   <h2 className="text-base font-semibold text-slate-900">{job.title}</h2>
                   <p className="text-sm text-slate-600">{job.description}</p>
                   <p className="text-xs text-slate-500">
-                    {job.location} · {job.duration} · {job.timing}
+                    {job.location} - {job.duration} - {job.timing}
                   </p>
                   {job.requirements.length > 0 ? (
                     <ul className="flex flex-wrap gap-2 text-xs text-slate-500">

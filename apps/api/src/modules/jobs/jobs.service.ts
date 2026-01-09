@@ -39,7 +39,30 @@ export class JobsService {
       return this.jobs.find({ where });
     }
 
-    return this.jobs.find({ where: { status: "open" } });
+    const qb = this.jobs.createQueryBuilder("job").where("job.status = :status", {
+      status: "open"
+    });
+
+    const location = query.location?.trim();
+    if (location) {
+      qb.andWhere("job.location ILIKE :location", {
+        location: `%${location}%`
+      });
+    }
+
+    const skill = (query.skill ?? query.role)?.trim();
+    if (skill) {
+      qb.andWhere(":skill = ANY(job.requirements)", { skill });
+    }
+
+    const availability = query.availability?.trim();
+    if (availability) {
+      qb.andWhere("(job.duration ILIKE :availability OR job.timing ILIKE :availability)", {
+        availability: `%${availability}%`
+      });
+    }
+
+    return qb.getMany();
   }
 
   async get(jobId: string): Promise<Job> {

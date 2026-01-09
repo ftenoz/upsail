@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { vi } from "vitest";
 import FreelancerJobsPage from "../../src/app/freelancer/jobs/page";
@@ -52,5 +52,31 @@ describe("Freelancer jobs page", () => {
     renderWithClient(<FreelancerJobsPage />);
 
     expect(await screen.findByText("No open jobs yet. Check back soon.")).toBeInTheDocument();
+  });
+
+  it("applies filters to the jobs feed", async () => {
+    vi.mocked(listJobs).mockResolvedValue([]);
+
+    renderWithClient(<FreelancerJobsPage />);
+
+    fireEvent.change(screen.getByLabelText("Role or skill"), {
+      target: { value: "Offshore" }
+    });
+    fireEvent.change(screen.getByLabelText("Location"), {
+      target: { value: "Oslo" }
+    });
+    fireEvent.change(screen.getByLabelText("Availability"), {
+      target: { value: "Q2 2026" }
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Apply filters" }));
+
+    await waitFor(() => {
+      expect(listJobs).toHaveBeenLastCalledWith({
+        skill: "Offshore",
+        location: "Oslo",
+        availability: "Q2 2026"
+      });
+    });
   });
 });
