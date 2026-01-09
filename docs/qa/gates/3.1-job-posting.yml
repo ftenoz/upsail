@@ -1,0 +1,43 @@
+schema: 1
+story: "3.1"
+story_title: "Job posting"
+gate: PASS
+status_reason: "All acceptance criteria are covered by tests; no material issues found."
+reviewer: "Quinn (Test Architect)"
+updated: "2026-01-09T19:07:36.5106038+03:00"
+
+top_issues: []
+waiver:
+  active: false
+
+quality_score: 100
+expires: "2026-01-23T19:07:43.6615153+03:00"
+
+evidence:
+  tests_reviewed: 3
+  risks_identified: 0
+  trace:
+    ac_covered: ["3.1.1", "3.1.2", "3.1.3"]
+    ac_gaps: []
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: "Role guards and DTO validation present on protected endpoints."
+  performance:
+    status: PASS
+    notes: "Query patterns are simple; indexed fields exist for status/location."
+  reliability:
+    status: PASS
+    notes: "Consistent error handling via global exception filter."
+  maintainability:
+    status: PASS
+    notes: "Module/service separation and shared types align with standards."
+
+recommendations:
+  immediate: []
+  future:
+    - action: "Consider optional list filters (location/skill) when requirements expand."
+      refs: ["apps/api/src/modules/jobs/jobs.service.ts", "apps/web/src/services/jobs.ts"]
+    - action: "Add E2E coverage for job posting flow if end-to-end coverage becomes a priority."
+      refs: ["apps/e2e/jobs"]
