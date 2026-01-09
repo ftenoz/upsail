@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { createApplication } from "../../../services/applications";
 import { listJobs, type ListJobsParams } from "../../../services/jobs";
 
 type FilterDraft = {
@@ -17,13 +18,62 @@ const emptyFilters: FilterDraft = {
   availability: ""
 };
 
+type ApplicationFeedback = {
+  tone: "success" | "error";
+  message: string;
+};
+
 export default function FreelancerJobsPage() {
   const [draftFilters, setDraftFilters] = useState<FilterDraft>(emptyFilters);
   const [filters, setFilters] = useState<ListJobsParams | null>(null);
+  const [applicationNotes, setApplicationNotes] = useState<Record<string, string>>(
+    {}
+  );
+  const [feedbackByJob, setFeedbackByJob] = useState<
+    Record<string, ApplicationFeedback | undefined>
+  >({});
+  const [activeJobId, setActiveJobId] = useState<string | null>(null);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["jobs", "feed", filters],
     queryFn: () => listJobs(filters ?? undefined)
+  });
+
+  const applyMutation = useMutation({
+    mutationFn: createApplication,
+    onMutate: (variables) => {
+      setActiveJobId(variables.jobId);
+      setFeedbackByJob((current) => ({
+        ...current,
+        [variables.jobId]: undefined
+      }));
+    },
+    onSuccess: (_, variables) => {
+      setFeedbackByJob((current) => ({
+        ...current,
+        [variables.jobId]: {
+          tone: "success",
+          message: "Application sent."
+        }
+      }));
+      setApplicationNotes((current) => ({
+        ...current,
+        [variables.jobId]: ""
+      }));
+    },
+    onError: (err, variables) => {
+      if (!variables) return;
+      setFeedbackByJob((current) => ({
+        ...current,
+        [variables.jobId]: {
+          tone: "error",
+          message: err instanceof Error ? err.message : "Unable to apply."
+        }
+      }));
+    },
+    onSettled: () => {
+      setActiveJobId(null);
+    }
   });
 
   const jobs = data ?? [];
@@ -47,6 +97,21 @@ export default function FreelancerJobsPage() {
   const clearFilters = () => {
     setDraftFilters(emptyFilters);
     setFilters(null);
+  };
+
+  const handleNoteChange = (jobId: string) => {
+    return (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+      const value = event.target.value;
+      setApplicationNotes((current) => ({ ...current, [jobId]: value }));
+    };
+  };
+
+  const handleApply = (jobId: string) => {
+    const note = applicationNotes[jobId]?.trim();
+    applyMutation.mutate({
+      jobId,
+      note: note ? note : undefined
+    });
   };
 
   return (
@@ -141,40 +206,84 @@ export default function FreelancerJobsPage() {
         ) : null}
 
         <section className="space-y-4">
-          {jobs.map((job) => (
-            <div
-              key={job.id}
-              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
-            >
-              <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                <div className="space-y-2">
-                  <h2 className="text-base font-semibold text-slate-900">{job.title}</h2>
-                  <p className="text-sm text-slate-600">{job.description}</p>
-                  <p className="text-xs text-slate-500">
-                    {job.location} - {job.duration} - {job.timing}
-                  </p>
-                  {job.requirements.length > 0 ? (
-                    <ul className="flex flex-wrap gap-2 text-xs text-slate-500">
-                      {job.requirements.map((req) => (
-                        <li
-                          key={req}
-                          className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1"
-                        >
-                          {req}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : null}
+          {jobs.map((job) => {
+            const feedback = feedbackByJob[job.id];
+            const isApplying = applyMutation.isPending && activeJobId === job.id;
+            const noteId = `apply-note-${job.id}`;
+            return (
+              <div
+                key={job.id}
+                className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+              >
+                <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                  <div className="space-y-2">
+                    <h2 className="text-base font-semibold text-slate-900">
+                      {job.title}
+                    </h2>
+                    <p className="text-sm text-slate-600">{job.description}</p>
+                    <p className="text-xs text-slate-500">
+                      {job.location} - {job.duration} - {job.timing}
+                    </p>
+                    {job.requirements.length > 0 ? (
+                      <ul className="flex flex-wrap gap-2 text-xs text-slate-500">
+                        {job.requirements.map((req) => (
+                          <li
+                            key={req}
+                            className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1"
+                          >
+                            {req}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                  </div>
+                  <Link
+                    className="text-sm font-semibold text-slate-900 underline"
+                    href={`/company/${encodeURIComponent(job.companyId)}`}
+                  >
+                    Company profile
+                  </Link>
                 </div>
-                <Link
-                  className="text-sm font-semibold text-slate-900 underline"
-                  href={`/company/${encodeURIComponent(job.companyId)}`}
-                >
-                  Company profile
-                </Link>
+                <div className="mt-4 space-y-3">
+                  <label
+                    className="block text-sm font-semibold text-slate-700"
+                    htmlFor={noteId}
+                  >
+                    Add a note (optional)
+                  </label>
+                  <textarea
+                    id={noteId}
+                    className="w-full rounded-xl border border-slate-200 px-4 py-2 text-sm"
+                    rows={3}
+                    value={applicationNotes[job.id] ?? ""}
+                    onChange={handleNoteChange(job.id)}
+                    placeholder="Share a quick summary of your experience."
+                  />
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <button
+                      type="button"
+                      className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                      onClick={() => handleApply(job.id)}
+                      disabled={isApplying}
+                    >
+                      {isApplying ? "Submitting..." : "Apply to job"}
+                    </button>
+                    {feedback ? (
+                      <p
+                        className={`text-sm ${
+                          feedback.tone === "success"
+                            ? "text-emerald-600"
+                            : "text-rose-600"
+                        }`}
+                      >
+                        {feedback.message}
+                      </p>
+                    ) : null}
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </section>
       </div>
     </main>

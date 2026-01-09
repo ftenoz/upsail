@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Job } from "@upsail/shared";
 import { JobForm } from "../../../features/jobs/job-form";
@@ -176,6 +177,12 @@ export default function CompanyJobsPage() {
                     ) : null}
                   </div>
                   <div className="flex flex-col gap-2 sm:flex-row">
+                    <Link
+                      className="rounded-full border border-slate-200 px-4 py-2 text-center text-sm font-semibold text-slate-700"
+                      href={`/company/jobs/${encodeURIComponent(job.id)}`}
+                    >
+                      View applications
+                    </Link>
                     <button
                       type="button"
                       className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700"

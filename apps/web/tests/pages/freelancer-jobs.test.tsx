@@ -2,10 +2,15 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { vi } from "vitest";
 import FreelancerJobsPage from "../../src/app/freelancer/jobs/page";
+import { createApplication } from "../../src/services/applications";
 import { listJobs } from "../../src/services/jobs";
 
 vi.mock("../../src/services/jobs", () => ({
   listJobs: vi.fn()
+}));
+
+vi.mock("../../src/services/applications", () => ({
+  createApplication: vi.fn()
 }));
 
 const renderWithClient = (ui: React.ReactElement) => {
@@ -20,6 +25,7 @@ const renderWithClient = (ui: React.ReactElement) => {
 describe("Freelancer jobs page", () => {
   beforeEach(() => {
     vi.mocked(listJobs).mockReset();
+    vi.mocked(createApplication).mockReset();
   });
 
   it("renders open jobs from the feed", async () => {
@@ -77,6 +83,49 @@ describe("Freelancer jobs page", () => {
         location: "Oslo",
         availability: "Q2 2026"
       });
+    });
+  });
+
+  it("submits an application with a note", async () => {
+    vi.mocked(listJobs).mockResolvedValue([
+      {
+        id: "job-1",
+        companyId: "company-1",
+        title: "Offshore maintenance planner",
+        description: "Plan maintenance for offshore assets.",
+        requirements: ["Planning"],
+        location: "Oslo",
+        duration: "3 months",
+        timing: "Q2 2026",
+        status: "open"
+      }
+    ]);
+    vi.mocked(createApplication).mockResolvedValue({
+      id: "application-1",
+      jobId: "job-1",
+      freelancerId: "freelancer-1",
+      note: "Excited to help.",
+      status: "applied",
+      createdAt: new Date().toISOString()
+    });
+
+    renderWithClient(<FreelancerJobsPage />);
+
+    await screen.findByText("Offshore maintenance planner");
+
+    fireEvent.change(screen.getByLabelText("Add a note (optional)"), {
+      target: { value: "Excited to help." }
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Apply to job" }));
+
+    await waitFor(() => {
+      expect(createApplication).toHaveBeenCalledWith(
+        {
+          jobId: "job-1",
+          note: "Excited to help."
+        },
+        expect.any(Object)
+      );
     });
   });
 });
