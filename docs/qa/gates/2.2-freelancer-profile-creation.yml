@@ -1,0 +1,57 @@
+schema: 1
+story: "2.2"
+story_title: "Freelancer profile creation"
+gate: "WAIVED"
+status_reason: "AC2 visibility gap acknowledged and waived for MVP; tracked for follow-up."
+reviewer: "Quinn (Test Architect)"
+updated: "2026-01-08T11:39:30.6196619+03:00"
+
+waiver:
+  active: true
+  reason: "Accepting sample company visibility for MVP; implement real applications/job browsing integration later."
+  approved_by: "Product Owner"
+
+top_issues:
+  - id: "AC2-001"
+    severity: medium
+    finding: "Company-side visibility relies on a sample dashboard/lookup instead of a real applications or job browsing view."
+    suggested_action: "Integrate freelancer profile links into actual applications/job browsing UI and add a UI test."
+    suggested_owner: "dev"
+
+risk_summary:
+  totals: { critical: 0, high: 0, medium: 1, low: 0 }
+  recommendations:
+    must_fix:
+      - "Clarify/implement AC2 visibility in real company views and add coverage."
+    monitor: []
+
+quality_score: 90
+expires: "2026-01-22T11:39:30.6196619+03:00"
+
+evidence:
+  tests_reviewed: 2
+  risks_identified: 1
+  trace:
+    ac_covered: [1]
+    ac_gaps: [2]
+
+nfr_validation:
+  security:
+    status: PASS
+    notes: "Role guard enforced on write endpoints; public read is intentional."
+  performance:
+    status: PASS
+    notes: ""
+  reliability:
+    status: PASS
+    notes: ""
+  maintainability:
+    status: PASS
+    notes: ""
+
+recommendations:
+  immediate:
+    - action: "Add freelancer profile link to real applications/job browsing view and add a UI test."
+      refs:
+        - "apps/web/src/app/company/dashboard/page.tsx"
+  future: []
